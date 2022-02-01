@@ -9,7 +9,7 @@ module.exports = function (homebridge) {
   homebridge.registerAccessory(
     'homebridge-http-motion-sensor',
     'motion-sensor',
-    MotionSensorAccessory,
+    MotionSensorAccessory
   );
 };
 
@@ -57,22 +57,33 @@ MotionSensorAccessory.prototype = {
 
   checkMotion: function (callback) {
     if (this.statusUrl != null) {
-      http
-        .get(this.statusUrl, (resp) => {
-          let data = '';
-          resp.on('data', (chunk) => {
-            data += chunk;
-          });
-          resp.on('end', () => {
-            callback(parseInt(data));
-          });
-        })
-        .on('error', (err) => {
-          if (this.allowOffline && err.code == 'ECONNREFUSED') {
-            callback(0);
+      const request = http
+        .request(
+          'http://192.168.100.50:55888/screenlocked/status',
+          { timeout: 1000 /* 1 second */ },
+          (response) => {
+            let data = '';
+            response.on('data', (chunk) => (data += chunk));
+            response.on('end', () => callback(parseInt(data)));
           }
-          if (!this.allowOffline) {
-            console.error('Error: ' + err.message);
+        )
+        .on('error', (err) => {
+          console.error('Error: ' + err.message);
+          request.destroy();
+
+          if (this.allowOffline) {
+            callback(0);
+          } else {
+            callback();
+          }
+        })
+        .on('timeout', () => {
+          console.log('Timeout!');
+          request.destroy();
+
+          if (this.allowOffline) {
+            callback(0);
+          } else {
             callback();
           }
         });
