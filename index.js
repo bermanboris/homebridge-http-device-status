@@ -9,7 +9,7 @@ module.exports = function (homebridge) {
   homebridge.registerAccessory(
     'homebridge-http-motion-sensor',
     'motion-sensor',
-    MotionSensorAccessory
+    MotionSensorAccessory,
   );
 };
 
@@ -58,14 +58,14 @@ MotionSensorAccessory.prototype = {
   checkMotion: function (callback) {
     if (this.statusUrl != null) {
       const request = http
-        .request(
+        .get(
           'http://192.168.100.50:55888/screenlocked/status',
-          { timeout: 1000 /* 1 second */ },
+          {timeout: 1000 /* 1 second */},
           (response) => {
             let data = '';
             response.on('data', (chunk) => (data += chunk));
             response.on('end', () => callback(parseInt(data)));
-          }
+          },
         )
         .on('error', (err) => {
           console.error('Error: ' + err.message);
