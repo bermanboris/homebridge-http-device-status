@@ -80,12 +80,6 @@ MotionSensorAccessory.prototype = {
         .on('timeout', () => {
           console.log('Timeout!');
           request.destroy();
-
-          if (this.allowOffline) {
-            callback(0);
-          } else {
-            callback();
-          }
         });
     }
   },
