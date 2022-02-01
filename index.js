@@ -1,4 +1,4 @@
-const http = require('http');
+const http = require("http");
 
 var Service, Characteristic, ContactState, Homebridge;
 
@@ -7,9 +7,9 @@ module.exports = function (homebridge) {
   Characteristic = homebridge.hap.Characteristic;
   Homebridge = homebridge;
   homebridge.registerAccessory(
-    'homebridge-http-motion-sensor',
-    'motion-sensor',
-    MotionSensorAccessory,
+    "homebridge-http-motion-sensor",
+    "motion-sensor",
+    MotionSensorAccessory
   );
 };
 
@@ -21,12 +21,12 @@ function MotionSensorAccessory(log, config) {
   this.statusUrl = config.statusUrl || null;
 
   if (this.statusUrl == null) {
-    this.log('statusUrl is required');
+    this.log("statusUrl is required");
     process.exit(1);
   }
 
   if (this.allowOffline == null) {
-    this.log('allowOffline is required');
+    this.log("allowOffline is required");
     process.exit(1);
   }
 
@@ -54,25 +54,36 @@ MotionSensorAccessory.prototype = {
       setTimeout(this.monitorMotionSensorState.bind(this), this.pollInterval);
     });
   },
-
+  
   checkMotion: function (callback) {
     if (this.statusUrl != null) {
-      http
-        .get(this.statusUrl, (resp) => {
-          let data = '';
-          resp.on('data', (chunk) => {
-            data += chunk;
-          });
-          resp.on('end', () => {
-            callback(parseInt(data));
-          });
-        })
-        .on('error', (err) => {
-          if (this.allowOffline && err.code == 'ECONNREFUSED') {
-            callback(0);
+      const request = http
+        .request(
+          "http://192.168.100.50:55888/screenlocked/status",
+          { timeout: 1000 /* 1 second */ },
+          (response) => {
+            let data = "";
+            response.on("data", (chunk) => (data += chunk));
+            response.on("end", () => callback(parseInt(data)));
           }
-          if (!this.allowOffline) {
-            console.error('Error: ' + err.message);
+        )
+        .on("error", (err) => {
+          console.error("Error: " + err.message);
+          request.destroy();
+
+          if (this.allowOffline) {
+            callback(0);
+          } else {
+            callback();
+          }
+        })
+        .on("timeout", () => {
+          console.log("Timeout!");
+          request.destroy();
+
+          if (this.allowOffline) {
+            callback(0);
+          } else {
             callback();
           }
         });
@@ -83,10 +94,10 @@ MotionSensorAccessory.prototype = {
     this.checkMotion((state) => {
       this.detecting = state;
       if (this.detecting === 1) {
-        this.log('Status: Online');
+        this.log("Status: Online");
       }
       if (this.detecting === 0) {
-        this.log('Status: Offline');
+        this.log("Status: Offline");
       }
       callback(null, this.detecting);
     });
@@ -100,17 +111,17 @@ MotionSensorAccessory.prototype = {
     var informationService = new Service.AccessoryInformation();
 
     informationService
-      .setCharacteristic(Characteristic.Manufacturer, 'HttpSensor')
-      .setCharacteristic(Characteristic.Model, 'SensorStatus')
-      .setCharacteristic(Characteristic.SerialNumber, 'Version 1.0.5');
+      .setCharacteristic(Characteristic.Manufacturer, "HttpSensor")
+      .setCharacteristic(Characteristic.Model, "SensorStatus")
+      .setCharacteristic(Characteristic.SerialNumber, "Version 1.0.5");
 
     this.service
       .getCharacteristic(Characteristic.MotionDetected)
-      .on('get', this.getMotionDetected.bind(this));
+      .on("get", this.getMotionDetected.bind(this));
 
     this.service
       .getCharacteristic(Characteristic.Name)
-      .on('get', this.getName.bind(this));
+      .on("get", this.getName.bind(this));
 
     return [informationService, this.service];
   },
