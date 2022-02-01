@@ -82,7 +82,12 @@ MotionSensorAccessory.prototype = {
   getMotionDetected: function (callback) {
     this.checkMotion((state) => {
       this.detecting = state;
-      this.log('Status: ', this.detecting);
+      if (this.detecting === 1) {
+        this.log('Status: Online');
+      }
+      if (this.detecting === 0) {
+        this.log('Status: Offline');
+      }
       callback(null, this.detecting);
     });
   },
