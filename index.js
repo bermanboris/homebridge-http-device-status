@@ -68,7 +68,7 @@ MotionSensorAccessory.prototype = {
           });
         })
         .on('error', (err) => {
-          if (this.allowOffline) {
+          if (this.allowOffline && err.code == 'ECONNREFUSED') {
             callback(0);
           }
           if (!this.allowOffline) {
@@ -82,7 +82,7 @@ MotionSensorAccessory.prototype = {
   getMotionDetected: function (callback) {
     this.checkMotion((state) => {
       this.detecting = state;
-      this.log('getHttpSensorState: ', this.detecting);
+      this.log('Status: ', this.detecting);
       callback(null, this.detecting);
     });
   },

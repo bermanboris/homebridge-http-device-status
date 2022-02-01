@@ -1,7 +1,7 @@
 {
-  "name": "homebridge-http-status",
+  "name": "homebridge-http-device-status",
   "version": "1.0.0",
-  "description": "Http status as motion sensor plugin for Homebridge",
+  "description": "Http device status as motion sensor plugin for Homebridge",
   "keywords": [
     "homebridge-plugin",
     "http-status",
