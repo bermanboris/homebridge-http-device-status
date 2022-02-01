@@ -27,12 +27,12 @@ To add to your `config.json` file, under the `accessories` array :
 }
 ```
 
-| Parameter     | Type   | Value                                                                  |
-| ------------- |--------|------------------------------------------------------------------------|
-| accessory     | String | Must be `motion-sensor`.                                               |
-| name          | String | The name that will be displayed in HomeKit for the accessory.          |
-| pollInterval  | Double | The interval for requesting the status url.                            |
-| statusUrl     | String | The url that will returns the status of the motion sensor (0 or 1).    |
+| Parameter    | Type   | Value                                                               |
+| ------------ | ------ | ------------------------------------------------------------------- |
+| accessory    | String | Must be `motion-sensor`.                                            |
+| name         | String | The name that will be displayed in HomeKit for the accessory.       |
+| pollInterval | Double | The interval for requesting the status url.                         |
+| statusUrl    | String | The url that will returns the status of the motion sensor (0 or 1). |
 
 
 You can add as many accessories as needed.
